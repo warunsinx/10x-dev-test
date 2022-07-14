@@ -27,6 +27,12 @@ contract TenXBank is ITenXBank, FeeCollector, Ownable {
         return accounts[name].exists;
     }
 
+    modifier _checkAccountOwner(string memory name) {
+      require(_checkAccount(name), "Account not found");
+      require(msg.sender == accounts[name].owner, "Account owner does not match");
+      _;
+   }
+
     function createAccount(string memory name) external override {
         require(!_checkAccount(name), "Account name has already been taken");
         accounts[name].exists = true;
@@ -36,17 +42,13 @@ contract TenXBank is ITenXBank, FeeCollector, Ownable {
         emit AccountCreated(name, msg.sender);
     }
 
-    function deposit(string memory name, uint256 amount) external override {
-        require(_checkAccount(name), "Account not found");
-        require(msg.sender == accounts[name].owner, "Account owner does not match");
+    function deposit(string memory name, uint256 amount) external override _checkAccountOwner(name) {
         bankToken.transferFrom(msg.sender, address(this), amount);
         accounts[name].balance += amount;
         emit TokenDeposited(name, amount);
     }
 
-    function withdraw(string memory name, uint256 amount) external override {
-        require(_checkAccount(name), "Account not found");
-        require(msg.sender == accounts[name].owner, "Account owner does not match");
+    function withdraw(string memory name, uint256 amount) external override _checkAccountOwner(name) {
         require(accounts[name].balance > amount, "Insufficient account balance");
         accounts[name].balance -= amount;
         bankToken.transfer(msg.sender, amount);
@@ -57,10 +59,8 @@ contract TenXBank is ITenXBank, FeeCollector, Ownable {
         string memory from,
         string memory to,
         uint256 amount
-    ) internal override {
-        require(_checkAccount(from), "Sender account not found");
+    ) internal override _checkAccountOwner(from) {
         require(_checkAccount(to), "Receiver account not found");
-        require(msg.sender == accounts[from].owner, "Account owner does not match");
         require(accounts[from].balance > amount, "Insufficient account balance");
         
         uint256 amountWithFee = amount;
