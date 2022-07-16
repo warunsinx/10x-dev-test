@@ -6,8 +6,7 @@ import useWalletStore from "../stores/WalletStore";
 function MyApp({ Component, pageProps }: AppProps) {
   const loadSession = useWalletStore((state) => state.loadSession);
   const walletAddress = useWalletStore((state) => state.address);
-  const loadTokenBalances = useWalletStore((state) => state.loadWalletBalances);
-  const loadAllowances = useWalletStore((state) => state.loadWalletAllowances);
+  const loadWalletData = useWalletStore((state) => state.loadWalletData);
 
   useEffect(() => {
     loadSession();
@@ -15,8 +14,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   useEffect(() => {
     if (walletAddress) {
-      // loadTokenBalances();
-      // loadAllowances();
+      loadWalletData();
     }
   }, [walletAddress]);
 

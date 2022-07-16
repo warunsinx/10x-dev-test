@@ -1,11 +1,8 @@
 import getProvider from "../utils/getProvider";
-// import { KAP20__factory } from "../typechainWirtual";
-// import { WirtualBridge__factory } from "../typechainWirtual/factories/WirtualBridge__factory";
+import { ERC20__factory, TenXBank__factory } from "../typechain-types";
 
-// export const kap20Contract = (address: string, provider = getProvider()) =>
-//   KAP20__factory.connect(address, provider);
+export const erc20Contract = (address: string, provider = getProvider()) =>
+  ERC20__factory.connect(address, provider);
 
-// export const wirtualBridgeContract = (
-//   address: string,
-//   provider = getProvider()
-// ) => WirtualBridge__factory.connect(address, provider);
+export const tenXBankContract = (address: string, provider = getProvider()) =>
+  TenXBank__factory.connect(address, provider);

@@ -3,7 +3,8 @@ import { ethereum } from "../utils/ethereum";
 import tokenService from "../services/token.service";
 import localService from "../services/local.service";
 import STORAGE_KEYS from "../constants/storageKey";
-import { CONTRACT_ADDRESS } from "../constants/addressList";
+import { ADDRESS_LIST } from "../constants/addressList";
+import bankService from "../services/bank.service";
 
 enum WalletType {
   Metamask = "metamask",
@@ -13,7 +14,9 @@ const store = (set: any, get: any) => ({
   address: "" as string,
   walletBalances: {} as Record<string, string>,
   walletAllowances: {} as Record<string, string>,
+  bankAccounts: [] as { name: string; balance: number }[],
   sessionLoading: true,
+  walletDataLoading: true,
   loadSession: async () => {
     const walletType = localService.getItem(STORAGE_KEYS.WALLET_TYPE);
     if (walletType) {
@@ -26,6 +29,15 @@ const store = (set: any, get: any) => ({
       }
     }
     set({ sessionLoading: false });
+  },
+  loadWalletData: async () => {
+    const promises = [
+      get().loadWalletBalances(),
+      get().loadWalletAllowances(),
+      get().loadBankAccounts(),
+    ];
+    await Promise.all(promises);
+    set({ walletDataLoading: false });
   },
   subscribeWalletChange: (callback?: (address: string) => void) => {
     const eth = ethereum();
@@ -68,11 +80,20 @@ const store = (set: any, get: any) => ({
       return null;
     }
   },
+  loadBankAccounts: async () => {
+    const address = get().address;
+    if (address) {
+      const bankAccounts = await bankService.getAccounts(address);
+      set({ bankAccounts });
+    } else {
+      set({ bankAccounts: [] });
+    }
+  },
   loadWalletBalances: async () => {
     const address = get().address;
     if (address) {
-      const busdBalance = await tokenService.getBalance("BUSD", address);
-      set({ walletBalances: { BUSD: busdBalance } });
+      const daiBalance = await tokenService.getBalance("DAI", address);
+      set({ walletBalances: { DAI: daiBalance } });
     } else {
       set({ walletBalances: {} });
     }
@@ -80,12 +101,12 @@ const store = (set: any, get: any) => ({
   loadWalletAllowances: async () => {
     const address = get().address;
     if (address) {
-      const busdAllowance = await tokenService.getAllowance(
-        "BUSD",
+      const daiAllowance = await tokenService.getAllowance(
+        "DAI",
         address,
-        CONTRACT_ADDRESS.WirtualBridge
+        ADDRESS_LIST["TenXBank"]
       );
-      set({ walletAllowances: { BUSD: busdAllowance } });
+      set({ walletAllowances: { DAI: daiAllowance } });
     } else {
       set({ walletAllowances: {} });
     }
