@@ -1,7 +1,7 @@
 import { ethereum } from "./ethereum";
 import Router from "next/router";
 
-export const addChain = async (
+export const switchNetwork = async (
   chainId: string,
   chainName: string,
   nativeCurrency: { name: string; symbol: string; decimals: number },

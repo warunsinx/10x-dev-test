@@ -31,7 +31,10 @@ const getAllowance = async (token: string, owner: string, spender: string) => {
   }
 };
 
-const approve = async (token: string, spender: string) => {
+const approve = async (
+  token: string,
+  spender: string = ADDRESS_LIST["TenXBank"]
+) => {
   const tokenAddr = ADDRESS_LIST[token];
   const signer = getSigner();
 

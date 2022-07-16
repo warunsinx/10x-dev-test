@@ -5,6 +5,7 @@ import localService from "../services/local.service";
 import STORAGE_KEYS from "../constants/storageKey";
 import { ADDRESS_LIST } from "../constants/addressList";
 import bankService from "../services/bank.service";
+import { formatEther } from "ethers/lib/utils";
 
 enum WalletType {
   Metamask = "metamask",
@@ -31,11 +32,7 @@ const store = (set: any, get: any) => ({
     set({ sessionLoading: false });
   },
   loadWalletData: async () => {
-    const promises = [
-      get().loadWalletBalances(),
-      get().loadWalletAllowances(),
-      get().loadBankAccounts(),
-    ];
+    const promises = [get().loadWalletBalances(), get().loadBankAccounts()];
     await Promise.all(promises);
     set({ walletDataLoading: false });
   },
@@ -43,6 +40,7 @@ const store = (set: any, get: any) => ({
     const eth = ethereum();
     if (eth) {
       return eth.on("accountsChanged", (accounts: string) => {
+        set({ walletDataLoading: true });
         const account = accounts[0];
         if (account) {
           callback && callback(account);
@@ -106,7 +104,7 @@ const store = (set: any, get: any) => ({
         address,
         ADDRESS_LIST["TenXBank"]
       );
-      set({ walletAllowances: { DAI: daiAllowance } });
+      set({ walletAllowances: { DAI: formatEther(daiAllowance) } });
     } else {
       set({ walletAllowances: {} });
     }

@@ -7,6 +7,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   const loadSession = useWalletStore((state) => state.loadSession);
   const walletAddress = useWalletStore((state) => state.address);
   const loadWalletData = useWalletStore((state) => state.loadWalletData);
+  const loadWalletAllowance = useWalletStore(
+    (state) => state.loadWalletAllowances
+  );
 
   useEffect(() => {
     loadSession();
@@ -15,6 +18,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
     if (walletAddress) {
       loadWalletData();
+      loadWalletAllowance();
     }
   }, [walletAddress]);
 

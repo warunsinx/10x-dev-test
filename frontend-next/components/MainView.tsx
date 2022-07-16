@@ -10,17 +10,24 @@ import AccountList from "./AccountList";
 import BackButton from "./BackButton";
 import useWalletStore from "../stores/WalletStore";
 import Spinner from "./Spinner";
+import ConnectWalletHolder from "./ConnectWalletHolder";
+import useNetwork from "../hooks/useNetwork";
+import SwitchNetworkHolder from "./SwitchNetworkHolder";
 
 export default function MainView() {
+  const network = useNetwork();
   const wallet = useWalletStore((state) => state.address);
   const walletDataLoading = useWalletStore((state) => state.walletDataLoading);
   const [selectedModule, setSelectedModule] = useState<ModuleType>("idle");
-  const [targetAccount, setTargetAccount] = useState("");
+  const [selectedAccount, setSelectedAccount] = useState("");
+
+  const setSelected = (module: ModuleType, account: string) => {
+    setSelectedModule(module);
+    setSelectedAccount(account);
+  };
 
   const renderTitle = () => {
     switch (selectedModule) {
-      case "idle":
-        return "My Accounts:";
       case "create":
         return "Create your bank account:";
       case "deposit":
@@ -39,27 +46,32 @@ export default function MainView() {
       case "create":
         return <CreateAccountModule setModule={setSelectedModule} />;
       case "deposit":
-        return <DepositModule setModule={setSelectedModule} />;
+        return (
+          <DepositModule
+            setModule={setSelectedModule}
+            account={selectedAccount}
+          />
+        );
       case "withdraw":
-        return <WithdrawModule setModule={setSelectedModule} />;
+        return (
+          <WithdrawModule
+            setModule={setSelectedModule}
+            account={selectedAccount}
+          />
+        );
       case "transfer":
-        return <TransferModule setModule={setSelectedModule} />;
+        return (
+          <TransferModule
+            setModule={setSelectedModule}
+            account={selectedAccount}
+          />
+        );
       default:
-        return wallet ? (
+        return (
           <>
-            {walletDataLoading ? (
-              <div className="w-full h-full flex justify-center items-center">
-                <Spinner />
-              </div>
-            ) : (
-              <>
-                <AccountList />
-                <CreateAccountHolder setModule={setSelectedModule} />
-              </>
-            )}
+            <AccountList setSelected={setSelected} />
+            <CreateAccountHolder setModule={setSelectedModule} />
           </>
-        ) : (
-          <></>
         );
     }
   };
@@ -69,13 +81,29 @@ export default function MainView() {
       <Navbar />
       <div className="flex justify-center">
         <div className="w-full max-w-5xl">
-          <div className="flex items-center mt-5 ml-5 font-medium text-xl">
-            {selectedModule !== "idle" && (
-              <BackButton backHandler={() => setSelectedModule("idle")} />
-            )}
-            <p>{renderTitle()}</p>
-          </div>
-          {renderModule()}
+          {wallet && (
+            <div className="flex items-center mt-5 ml-5 font-medium text-xl">
+              {selectedModule !== "idle" && (
+                <BackButton backHandler={() => setSelectedModule("idle")} />
+              )}
+              <p>{renderTitle()}</p>
+            </div>
+          )}
+          {wallet ? (
+            <>
+              {walletDataLoading ? (
+                <div className="w-full mt-10 flex justify-center items-center">
+                  <Spinner />
+                </div>
+              ) : network !== 97 ? (
+                <SwitchNetworkHolder />
+              ) : (
+                renderModule()
+              )}
+            </>
+          ) : (
+            <ConnectWalletHolder />
+          )}
         </div>
       </div>
     </div>

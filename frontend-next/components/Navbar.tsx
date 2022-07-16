@@ -5,16 +5,27 @@ import { truncateAddress } from "../utils/truncateAddress";
 
 export default function Navbar() {
   const wallet = useWalletStore((state) => state.address);
+  const balance = useWalletStore((state) => state.walletBalances);
   const connectMetamask = useWalletStore((state) => state.connectMetamask);
 
   const renderButton = () => {
     if (wallet) {
       return (
-        <CustomButton
-          text={truncateAddress(wallet)}
-          height="h-10"
-          cursor="cursor-default"
-        />
+        <div className="flex items-center">
+          {balance["DAI"] && (
+            <p className="mr-3 text-xl">
+              {(+balance["DAI"]).toLocaleString("en-US", {
+                maximumFractionDigits: 2,
+              })}
+              <span className="ml-1 font-medium">DAI</span>
+            </p>
+          )}
+          <CustomButton
+            text={truncateAddress(wallet)}
+            height="h-10"
+            cursor="cursor-default"
+          />
+        </div>
       );
     } else
       return (
