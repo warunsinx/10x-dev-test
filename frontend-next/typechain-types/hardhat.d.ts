@@ -49,6 +49,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Multicall__factory>;
     getContractFactory(
+      name: "Multicall",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Multicall__factory>;
+    getContractFactory(
       name: "TenXBank",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TenXBank__factory>;
@@ -93,6 +97,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ITenXBank>;
+    getContractAt(
+      name: "Multicall",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Multicall>;
     getContractAt(
       name: "Multicall",
       address: string,

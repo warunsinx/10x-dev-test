@@ -3,6 +3,7 @@ import { ModuleType } from "../types/module.type";
 import CustomButton from "./CustomButton";
 import bankService from "../services/bank.service";
 import useWalletStore from "../stores/WalletStore";
+import { toast } from "react-toastify";
 
 export default function TransferBatchModule({
   setModule,
@@ -24,18 +25,33 @@ export default function TransferBatchModule({
     setTransferLoading(true);
 
     try {
-      await bankService
-        .transferBatch(
-          account,
-          accounts.map((acc) => acc.name),
-          accounts.map((acc) => acc.amount)
-        )
-        .then((tx) => tx.wait());
+      if (accounts.length === 1) {
+        await bankService
+          .transfer(account, accounts[0].name, accounts[0].amount)
+          .then((tx) => tx.wait());
+      } else {
+        await bankService
+          .transferBatch(
+            account,
+            accounts.map((acc) => acc.name),
+            accounts.map((acc) => acc.amount)
+          )
+          .then((tx) => tx.wait());
+      }
+      toast.success("Transfer Successfully !", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
       await loadWalletData();
       setAccounts([{ name: "", amount: "", fee: 0 }]);
       setModule("idle");
     } catch (err) {
-      console.log(err);
+      toast.error("Something went wrong !");
     }
 
     setTransferLoading(false);
@@ -49,31 +65,34 @@ export default function TransferBatchModule({
   return (
     <form
       onSubmit={transferHandler}
-      className="border-2 border-indigo-500 mt-5 p-5"
+      className="border-2 border-indigo-500 p-5 mt-5 rounded-xl"
     >
-      <div className="flex items-center mb-3">
-        <p className="mr-3">From Account Name:</p>
-        <input
-          disabled
-          value={account}
-          type="text"
-          name="from"
-          className="border-2 border-indigo-500 flex-1 py-2 px-2 bg-gray-200"
-        />
+      <div className="flex flex-col sm:flex-row mb-3 items-end sm:items-center space-y-3 sm:space-y-0 sm:space-x-5 border-b-2 pb-3 border-yellow-500">
+        <div className="flex items-center flex-1">
+          <p className="mr-3">Account Name:</p>
+          <input
+            disabled
+            value={account}
+            type="text"
+            name="name"
+            className="border-2 border-indigo-500 flex-1 py-2 px-2 bg-gray-800 text-gray-400 rounded-lg"
+          />
+        </div>
+        <div className="flex items-center flex-1">
+          <p className="mr-3">Account Balance:</p>
+          <input
+            disabled
+            value={accountBalance}
+            type="text"
+            name="balance"
+            className="border-2 border-indigo-500 flex-1 py-2 px-2 bg-gray-800 text-gray-400 rounded-lg"
+          />
+        </div>
       </div>
-      <div className="flex items-center mb-3">
-        <p className="mr-3">Account Balance:</p>
-        <input
-          disabled
-          value={accountBalance}
-          type="text"
-          name="balance"
-          className="border-2 border-indigo-500 flex-1 py-2 px-2 bg-gray-200"
-        />
-      </div>
+
       {accounts.map((acc, i) => (
-        <div key={i} className="mb-5">
-          <div key={i} className="flex items-center space-x-3 mb-1">
+        <div key={i} className="mb-5 mt-3 border-b-2 pb-3 border-yellow-500">
+          <div className="flex flex-col sm:flex-row mb-3 items-end sm:items-center space-y-3 sm:space-y-0 sm:space-x-5 border-b-2 pb-3 border-yellow-500">
             <div className="flex-1 flex items-center">
               <p className="mr-3">To Account Name:</p>
               <input
@@ -93,7 +112,7 @@ export default function TransferBatchModule({
                 }}
                 type="text"
                 name={`to-${i}`}
-                className="border-2 border-indigo-500 flex-1 py-2 px-2  focus:ring-2 ring-yellow-500 focus:outline-none"
+                className="border-2 border-indigo-500 flex-1 py-2 px-2  focus:ring-2 ring-indigo-700 focus:outline-none bg-gray-800 text-white rounded-lg"
               />
             </div>
             <div className="flex-1 flex items-center">
@@ -110,11 +129,13 @@ export default function TransferBatchModule({
                 }}
                 type="number"
                 name={`amount-${i}`}
-                className="border-2 border-indigo-500 flex-1 py-2 px-2  focus:ring-2 ring-yellow-500 focus:outline-none"
+                className="border-2 border-indigo-500 flex-1 py-2 px-2  focus:ring-2 ring-indigo-700 focus:outline-none bg-gray-800 text-white rounded-lg"
               />
             </div>
-            <div className="w-12">
+            <div className="w-full sm:w-12">
               <CustomButton
+                rounded="rounded-xl"
+                disabled={accounts.length === 1}
                 text="X"
                 onClick={() => {
                   setAccounts([
@@ -125,15 +146,18 @@ export default function TransferBatchModule({
               />
             </div>
           </div>
-          <p className="w-full">
-            Fee {acc.name.length ? acc.fee : 0}% | Receive ={" "}
-            {+acc.amount * (1 - acc.fee / 100) || 0} DAI
-          </p>
+          <div className="w-full flex justify-end">
+            <p>
+              Fee {acc.name.length ? acc.fee : 0}% | Receive ={" "}
+              {+acc.amount * (1 - acc.fee / 100) || 0} DAI
+            </p>
+          </div>
         </div>
       ))}
       <div className="mb-3">
         <CustomButton
-          text="Add Account"
+          rounded="rounded-xl"
+          text="Add Receiver"
           onClick={() =>
             setAccounts([...accounts, { name: "", amount: "", fee: 0 }])
           }
@@ -143,14 +167,16 @@ export default function TransferBatchModule({
         accounts.reduce((prev, curr) => prev + +curr.amount, 0) ||
       accountBalance === 0 ? (
         <CustomButton
+          rounded="rounded-xl"
           type="submit"
           text="Insufficient DAI in Account"
           disabled={true}
         />
       ) : (
         <CustomButton
+          rounded="rounded-xl"
           type="submit"
-          text="Batch Transfer"
+          text="Transfer"
           isLoading={transferLoading}
           disabled={transferLoading}
         />

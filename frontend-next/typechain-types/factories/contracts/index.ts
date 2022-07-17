@@ -4,4 +4,5 @@
 export * as abstract from "./abstract";
 export * as interfaces from "./interfaces";
 export { DaiToken__factory } from "./DaiToken__factory";
+export { Multicall__factory } from "./Multicall__factory";
 export { TenXBank__factory } from "./TenXBank__factory";

@@ -13,6 +13,7 @@ import Spinner from "./Spinner";
 import ConnectWalletHolder from "./ConnectWalletHolder";
 import useNetwork from "../hooks/useNetwork";
 import SwitchNetworkHolder from "./SwitchNetworkHolder";
+import { ToastContainer } from "react-toastify";
 
 export default function MainView() {
   const network = useNetwork();
@@ -77,10 +78,10 @@ export default function MainView() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gray-50 pb-12">
+    <div className="min-h-screen w-full bg-gradient-to-br from-indigo-900 to-black pb-12 text-white">
       <Navbar />
       <div className="flex justify-center">
-        <div className="w-full max-w-5xl">
+        <div className="w-full max-w-5xl px-8">
           {wallet && (
             <div className="flex items-center mt-5 ml-5 font-medium text-xl">
               {selectedModule !== "idle" && (
@@ -106,6 +107,7 @@ export default function MainView() {
           )}
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 }

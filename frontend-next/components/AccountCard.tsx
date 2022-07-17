@@ -12,10 +12,10 @@ export default function AccountCard({
   setSelected: (module: ModuleType, account: string) => void;
 }) {
   return (
-    <div className="border-2 border-b-0 border-indigo-500">
-      <div className="p-5 py-7 text-lg font-medium text-gray-700">
+    <div className="border-2 border-b-0 border-indigo-500 rounded-t-xl">
+      <div className="p-5 py-7 text-lg font-medium text-white">
         <p className="mr-3">
-          Account Name: <span className="ml-[37px]">{name}</span>
+          Account Name: <span className="ml-[39px]">{name}</span>
         </p>
         <p className="mr-3">
           Balance:{" "}
