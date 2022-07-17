@@ -7,7 +7,7 @@ import "../interfaces/IFeeCollector.sol";
 abstract contract FeeCollector is IFeeCollector {
     uint256 public constant override feeDecimals = 4;
     uint256 public constant override shifter = 10**feeDecimals;
-    uint256 public override fee = 10;
+    uint256 public override fee = 100;
 
     function calculateFee(uint256 amount)
         internal

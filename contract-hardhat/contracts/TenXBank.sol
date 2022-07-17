@@ -9,8 +9,8 @@ import "./abstract/FeeCollector.sol";
 contract TenXBank is ITenXBank, FeeCollector, Ownable {
     IERC20 public immutable bankToken;
 
-    constructor(IERC20 _bankToken) {
-        bankToken = _bankToken;
+    constructor(IERC20 bankToken_) {
+        bankToken = bankToken_;
     }
 
     mapping(string => Account) public accounts;
